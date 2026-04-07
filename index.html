@@ -73,6 +73,24 @@ tbody tr:hover td{background:rgba(255,255,255,.02)}
 .sync-dot.loading{background:#d4890f;animation:pulse 1s infinite}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
 </style>
+<script>
+  window.EMSA_DASHBOARD_ID = 'emsa-admin';
+  window.onEmsaAuthOk = function (user, perms) {
+    var TABS = ['usuarios', 'permisos', 'logs', 'config'];
+    var firstVisible = null;
+    TABS.forEach(function (t) {
+      var canSee = window.emsaCanViewTab(t);
+      var btn = document.getElementById('btn-' + t);
+      var tab = document.getElementById('tab-' + t);
+      if (btn) btn.style.display = canSee ? '' : 'none';
+      if (!canSee && tab) tab.style.display = 'none';
+      if (canSee && !firstVisible) firstVisible = t;
+    });
+    if (firstVisible && typeof showTab === 'function') showTab(firstVisible);
+    if (typeof cargar === 'function') cargar();
+  };
+</script>
+<script src="emsa-auth.js"></script>
 </head>
 <body>
 
