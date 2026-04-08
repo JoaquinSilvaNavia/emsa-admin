@@ -20,6 +20,7 @@
     'emsa-clientes': 'Clientes x Cobrar',
     'emsa-ventas': 'Ventas & Produccion',
     'emsa-stock': 'Stock de Inventario',
+    'emsa-mayor': 'Estado de Resultados',
     'emsa-home': 'Dashboard Ejecutivo'
   };
 
@@ -118,9 +119,12 @@
           return;
         }
 
-        // Verificar acceso al dashboard actual
+        // Verificar acceso al dashboard actual (Soporte Matriz o Legacy DASHBOARD='*')
         var dashVal = (myPerms[DBID] || '').trim().toUpperCase();
-        if (dashVal !== 'SI') {
+        var dashLegacy = (myPerms['DASHBOARD'] || '').trim().toUpperCase();
+        var isAllowed = (dashVal === 'SI' || dashVal === '*' || dashLegacy === '*' || dashLegacy === DBID.toUpperCase());
+
+        if (!isAllowed) {
           err.textContent = 'Sin acceso a este modulo. Contactar administrador.';
           btn.textContent = 'Ingresar'; btn.disabled = false;
           return;
@@ -193,8 +197,18 @@
     if (!_perms) return false;
     var key = DBID + ':' + tabName;
     var val = (_perms[key] || '').trim().toUpperCase();
-    if (val === '') return true;
-    return val === 'SI';
+    if (val === 'SI') return true;
+    if (val === 'NO') return false;
+
+    // Legacy V2: PESTANAS column support
+    var pestanas = (_perms['PESTANAS'] || '').trim().toUpperCase();
+    if (pestanas === '*') return true;
+    if (pestanas.length > 0) {
+      var pArr = pestanas.split(',').map(function(s){ return s.trim(); });
+      if (pArr.indexOf(tabName.toUpperCase()) !== -1) return true;
+    }
+
+    return val === '';
   };
 
   /**
@@ -203,7 +217,9 @@
    */
   window.emsaCanAccessDashboard = function (dashId) {
     if (!_perms) return false;
-    return (_perms[dashId] || '').trim().toUpperCase() === 'SI';
+    var val = (_perms[dashId] || '').trim().toUpperCase();
+    var dashLegacy = (_perms['DASHBOARD'] || '').trim().toUpperCase();
+    return (val === 'SI' || val === '*' || dashLegacy === '*' || dashLegacy === dashId.toUpperCase());
   };
 
   /** Datos del usuario logueado */
