@@ -107,7 +107,7 @@
           return;
         }
 
-        // Buscar fila de permisos (una sola fila por usuario — formato matriz)
+        // Buscar fila de permisos (una sola fila por Usuario — formato matriz)
         var myPerms = permsAll.filter(function (r) {
           return r.USUARIO && r.USUARIO.trim().toLowerCase() === u;
         })[0];
